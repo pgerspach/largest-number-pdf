@@ -1,9 +1,11 @@
 package controllers
 
+import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play._
 import org.scalatestplus.play.guice._
 import play.api.test._
 import play.api.test.Helpers._
+import services.PdfService
 
 /**
  * Add your spec here.
@@ -12,11 +14,12 @@ import play.api.test.Helpers._
  * For more information, see https://www.playframework.com/documentation/latest/ScalaTestingWithScalaTest
  */
 class HomeControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting {
+  val mockPdfService = mock[PdfService]
 
   "HomeController GET" should {
 
     "render the index page from a new instance of controller" in {
-      val controller = new HomeController(stubControllerComponents())
+      val controller = new HomeController(stubControllerComponents(), mockPdfService)
       val home = controller.index().apply(FakeRequest(GET, "/"))
 
       status(home) mustBe OK

@@ -8,7 +8,7 @@ import play.api.{Application, Logging}
 import java.util.Scanner
 import java.util.regex.Pattern
 import javax.inject.{Inject, Singleton}
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 import scala.util.matching.Regex
 
 @Singleton
