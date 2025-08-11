@@ -12,9 +12,9 @@ import scala.util.Try
 
 @Singleton
 class PdfService @Inject() (app: Application) extends Logging {
-  def readPdf(): Try[Option[Long]] = {
+  def readPdf(fileName: String): Try[Option[Long]] = {
     val tryDocument = Try {
-      Loader.loadPDF(new RandomAccessReadBufferedFile(app.path + "/app/pdf_files/FY25_Air_Force_Working_Capital_Fund.pdf"))
+      Loader.loadPDF(new RandomAccessReadBufferedFile(app.path + s"/app/pdf_files/${fileName}"))
     }
     tryDocument.map { document =>
       val text = new PDFTextStripper().getText(document)

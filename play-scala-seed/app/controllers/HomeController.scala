@@ -24,7 +24,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents, p
   }
 
   def largestNumber() = Action { implicit request: Request[AnyContent] =>
-    val largestNumber = pdfService.readPdf()
+    val fileName = request.getQueryString("file")
+    if (fileName.isEmpty) {
+      logger.error("No file name provided in the request.")
+      BadRequest("File name is required.")
+    }
+    val largestNumber = pdfService.readPdf(fileName.get)
     largestNumber.fold(
       error => {
         logger.error("Error reading PDF: " + error.getMessage)
