@@ -8,6 +8,7 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 scalaVersion := "2.13.16"
 
 libraryDependencies += guice
+libraryDependencies += "org.apache.pdfbox" % "pdfbox" % "3.0.5"
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.2" % Test
 
 // Adds additional packages into Twirl
