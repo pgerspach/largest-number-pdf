@@ -59,5 +59,100 @@ class NumberParserSpec extends PlaySpec {
       val result = NumberParser.parseRegularNumbers(text)
       result mustBe List(0.75)
     }
+
+    "detect table multipliers in headers" in {
+      val header1 = "Revenue (in millions)"
+      val header2 = "Budget (thousands)"
+      val header3 = "Amount ($M)"
+
+      NumberParser.detectTableMultiplier(header1) mustBe Some(1000000L)
+      NumberParser.detectTableMultiplier(header2) mustBe Some(1000L)
+      NumberParser.detectTableMultiplier(header3) mustBe Some(1000000L)
+    }
+
+    "apply table multipliers to bare numbers" in {
+      val lines = List(
+        "Revenue (in millions)",
+        "Product A    2.5",
+        "Product B    1.2",
+        "Total        3.7"
+      )
+
+      val result = NumberParser.parseAllNumbersWithTableContext(lines)
+      result must contain allOf(2500000.0, 1200000.0, 3700000.0)
+    }
+
+    "handle mixed explicit and table multipliers" in {
+      val lines = List(
+        "Budget (in millions)",
+        "Category A   2.5",
+        "Category B   500 thousand",  // Explicit multiplier overrides table
+        "Category C   1.0"
+      )
+
+      val result = NumberParser.parseAllNumbersWithTableContext(lines)
+      result must contain allOf(2500000.0, 500000.0, 1000000.0)
+    }
+
+    "reset table context on empty lines" in {
+      val lines = List(
+        "Revenue (in millions)",
+        "Item 1    2.5",
+        "",  // Empty line resets context
+        "Item 2    1000"  // Should be parsed as 1000, not 1000 million
+      )
+
+      val result = NumberParser.parseAllNumbersWithTableContext(lines)
+      result must contain allOf(2500000.0, 1000.0)
+    }
+
+    "find largest number with table context" in {
+      val lines = List(
+        "Budget Analysis (in billions)",
+        "Defense     750.2",
+        "Education   80.5",
+        "Healthcare  1.2 trillion",  // Explicit multiplier is larger
+        "Total       831.7"
+      )
+
+      val result = NumberParser.findLargestNumberWithTableContext(lines)
+      result mustBe Some(1200000000000.0)  // 1.2 trillion
+    }
+
+    "parse numbers with commas" in {
+      val text = "Revenue was 1,234,567.89 dollars"
+      val result = NumberParser.parseRegularNumbers(text)
+      result mustBe List(1234567.89)
+    }
+
+    "parse comma-separated numbers with multipliers" in {
+      val text = "Budget: 2,500.75 million"
+      val result = NumberParser.parseNumbersWithMultipliers(text)
+      result mustBe List(2500750000.0)
+    }
+
+    "handle mixed comma and non-comma numbers" in {
+      val text = "Values: 1,234, 567.89, and 2,500,000"
+      val result = NumberParser.parseRegularNumbers(text)
+      result must contain allOf(1234.0, 567.89, 2500000.0)
+    }
+
+    "apply table multipliers to comma-separated numbers" in {
+      val lines = List(
+        "Revenue (in millions)",
+        "Product A    2,500.25",
+        "Product B    1,200",
+        "Total        3,700.25"
+      )
+
+      val result = NumberParser.parseAllNumbersWithTableContext(lines)
+      result must contain allOf(2500250000.0, 1200000000.0, 3700250000.0)
+    }
+
+    "find largest comma-separated number" in {
+      val text = "Values: 1,234.56, 2,500 million, 999,999"
+      val result = NumberParser.findLargestNumber(text)
+      result mustBe Some(2500000000.0)  // 2,500 million
+    }
   }
 }

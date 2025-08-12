@@ -25,22 +25,13 @@ class PdfService @Inject() (app: Application) extends Logging {
       Loader.loadPDF(new RandomAccessReadBufferedFile(app.path + s"/app/pdf_files/${fileName}"))
     }
     tryDocument.map { document =>
+      // Extract text from the PDF document
       val text = new PDFTextStripper().getText(document)
-      val scanner = new Scanner(text)
-      var largestNumber: Option[Double] = None
+      val lines = text.split("\n").toList
 
-      while (scanner.hasNextLine) {
-        val line = scanner.nextLine()
-        val lineNumbers = NumberParser.parseAllNumbers(line)
+      // Use table-aware parsing to handle multipliers in headers
+      val largestNumber = NumberParser.findLargestNumberWithTableContext(lines)
 
-        if (lineNumbers.nonEmpty) {
-          val largestNumberInLine = lineNumbers.max
-          if (largestNumber.isEmpty || largestNumberInLine > largestNumber.get) {
-            largestNumber = Some(largestNumberInLine)
-          }
-        }
-      }
-      scanner.close()
       cache(fileName) = largestNumber
       largestNumber
     }
