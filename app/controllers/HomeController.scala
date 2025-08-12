@@ -32,7 +32,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents, p
       logger.error("No file name provided in the request.")
       BadRequest("File name is required.")
     }
-    val largestNumber = pdfService.readPdf(fileName.get)
+    val largestNumber = pdfService.getLargestNumberFromPdfFile(fileName.get)
     largestNumber.fold(
       error => {
         logger.error("Error reading PDF: " + error.getMessage)

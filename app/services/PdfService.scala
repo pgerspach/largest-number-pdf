@@ -15,7 +15,7 @@ class PdfService @Inject() (app: Application) extends Logging {
   private val cache = scala.collection.mutable.Map[String, Option[Double]]()
 
 
-  def readPdf(fileName: String): Try[Option[Double]] = {
+  def getLargestNumberFromPdfFile(fileName: String): Try[Option[Double]] = {
     // Check if the result is already cached
     cache.get(fileName) match {
       case Some(result) => return Success(result)
