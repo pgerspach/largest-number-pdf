@@ -55,6 +55,44 @@ object NumberParser {
     }.toList
   }
 
+  def isTableEndIndicator(text: String): Boolean = {
+    val lowerText = text.toLowerCase.trim
+    
+    // Patterns that typically indicate the end of a table
+    lowerText.startsWith("notes:") ||
+    lowerText.startsWith("source:") ||
+    lowerText.startsWith("table") ||
+    lowerText.startsWith("figure") ||
+    lowerText.contains("see table") ||
+    lowerText.contains("see appendix") ||
+    // Paragraph-like text (sentences with multiple words)
+    (lowerText.split("\\s+").length > 8 && lowerText.contains(".") && !lowerText.matches(".*\\d+.*\\d+.*")) ||
+    // New section headers
+    lowerText.matches("^[A-Z][A-Za-z\\s]+:?$") ||
+    // Footnotes or references
+    lowerText.matches("^\\d+\\.?\\s+.*") ||
+    lowerText.matches("^\\*+.*")
+  }
+
+  def looksLikeTableRow(text: String): Boolean = {
+    val line = text.trim
+    if (line.isEmpty) return false
+    
+    val hasNumbers = regularNumberPattern.findFirstIn(line).isDefined
+    val words = line.split("\\s+")
+    val numberWords = words.count(w => regularNumberPattern.findFirstIn(w).isDefined)
+    
+    // Table rows typically have:
+    // - Multiple numbers or at least one number with few words
+    // - Tab-separated or space-separated structure
+    // - Short descriptive text followed by numbers
+    hasNumbers && (
+      numberWords >= 2 || // Multiple numbers
+      (numberWords >= 1 && words.length <= 6) || // Few words with numbers
+      line.contains("\t") // Tab-separated
+    )
+  }
+
   def parseAllNumbers(text: String): List[Double] = {
     val numbersWithMultipliers = parseNumbersWithMultipliers(text)
     val regularNumbers = parseRegularNumbers(text)
@@ -66,13 +104,15 @@ object NumberParser {
     val allNumbers = scala.collection.mutable.ListBuffer[Double]()
 
     lines.foreach { line =>
-      // Reset table context on empty lines FIRST
-      if (line.trim.isEmpty) {
+      // Check if this line indicates the end of a table
+      if (isTableEndIndicator(line)) {
         currentTableMultiplier = None
-      } else {
+      }
+      
+      if (line.trim.nonEmpty) {
         // Check if this line contains a table header with multiplier
         detectTableMultiplier(line) match {
-          case Some(multiplier) =>
+          case Some(multiplier) => 
             currentTableMultiplier = Some(multiplier)
             // Also parse any numbers in the header line itself
             allNumbers ++= parseAllNumbers(line)
@@ -84,9 +124,13 @@ object NumberParser {
                 val explicitNumbers = parseNumbersWithMultipliers(line)
                 if (explicitNumbers.nonEmpty) {
                   allNumbers ++= explicitNumbers
-                } else {
-                  // Apply table multiplier to bare numbers
+                } else if (looksLikeTableRow(line)) {
+                  // Apply table multiplier to bare numbers in table rows
                   allNumbers ++= parseTableNumbers(line, multiplier)
+                } else {
+                  // Non-table-like line - reset context and parse normally
+                  currentTableMultiplier = None
+                  allNumbers ++= parseAllNumbers(line)
                 }
               case None =>
                 // Normal parsing outside table context

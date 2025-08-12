@@ -94,12 +94,36 @@ class NumberParserSpec extends PlaySpec {
       result must contain allOf(2500000.0, 500000.0, 1000000.0)
     }
 
-    "reset table context on empty lines" in {
+    "reset table context on non-table patterns" in {
       val lines = List(
         "Revenue (in millions)",
         "Item 1    2.5",
-        "",  // Empty line resets context
+        "This is a paragraph of normal text that clearly indicates we have moved away from the table structure.",  // Non-table text resets context
         "Item 2    1000"  // Should be parsed as 1000, not 1000 million
+      )
+
+      val result = NumberParser.parseAllNumbersWithTableContext(lines)
+      result must contain allOf(2500000.0, 1000.0)
+    }
+
+    "maintain table context for table-like rows" in {
+      val lines = List(
+        "Budget (in millions)",
+        "Category A    2.5",
+        "Category B    1.2",  // Still looks like a table row
+        "Category C    3.7"   // Should all be in millions
+      )
+
+      val result = NumberParser.parseAllNumbersWithTableContext(lines)
+      result must contain allOf(2500000.0, 1200000.0, 3700000.0)
+    }
+
+    "reset context on table end indicators" in {
+      val lines = List(
+        "Revenue (in millions)",
+        "Item A    2.5",
+        "Notes: The following data is unrelated.",  // Table end indicator
+        "Regular number 1000"  // Should not be in millions
       )
 
       val result = NumberParser.parseAllNumbersWithTableContext(lines)
