@@ -8,11 +8,13 @@ import play.api.{Application, Logging}
 import java.util.Scanner
 import java.util.regex.Pattern
 import javax.inject.{Inject, Singleton}
-import scala.util.Try
+import scala.util.{Success, Try}
 import scala.util.matching.Regex
 
 @Singleton
 class PdfService @Inject() (app: Application) extends Logging {
+
+  private val cache = scala.collection.mutable.Map[String, Option[Long]]()
 
   private val multipliers = Map(
     "thousand" -> 1000L,
@@ -36,6 +38,11 @@ class PdfService @Inject() (app: Application) extends Logging {
   }
 
   def readPdf(fileName: String): Try[Option[Long]] = {
+    // Check if the result is already cached
+    cache.get(fileName) match {
+      case Some(result) => return Success(result)
+      case None => // Continue to read the PDF
+    }
     val tryDocument = Try {
       Loader.loadPDF(new RandomAccessReadBufferedFile(app.path + s"/app/pdf_files/${fileName}"))
     }
@@ -66,6 +73,8 @@ class PdfService @Inject() (app: Application) extends Logging {
           }
         }
       }
+      scanner.close()
+      cache(fileName) = largestNumber
       largestNumber
     }
   }
