@@ -36,15 +36,10 @@ object NumberParser {
     val lowerText = text.toLowerCase
 
     // Check for explicit patterns
-    if (lowerText.contains("(in millions)") || lowerText.contains("(millions)")) Some(1000000L)
-    else if (lowerText.contains("(in thousands)") || lowerText.contains("(thousands)")) Some(1000L)
-    else if (lowerText.contains("(in billions)") || lowerText.contains("(billions)")) Some(1000000000L)
-    else if (lowerText.contains("(in trillions)") || lowerText.contains("(trillions)")) Some(1000000000000L)
-    // Check for currency abbreviations
-    else if (lowerText.contains("($m)") || lowerText.contains("(m)")) Some(1000000L)
-    else if (lowerText.contains("($k)") || lowerText.contains("(k)")) Some(1000L)
-    else if (lowerText.contains("($b)") || lowerText.contains("(b)")) Some(1000000000L)
-    else if (lowerText.contains("($t)") || lowerText.contains("(t)")) Some(1000000000000L)
+    if (lowerText.contains("in millions") || lowerText.contains("millions)")) Some(1000000L)
+    else if (lowerText.contains("in thousands)") || lowerText.contains("thousands)")) Some(1000L)
+    else if (lowerText.contains("in billions)") || lowerText.contains("billions)")) Some(1000000000L)
+    else if (lowerText.contains("in trillions)") || lowerText.contains("trillions)")) Some(1000000000000L)
     else None
   }
 
@@ -57,7 +52,6 @@ object NumberParser {
 
   def isTableEndIndicator(text: String): Boolean = {
     val lowerText = text.toLowerCase.trim
-    
     // Patterns that typically indicate the end of a table
     lowerText.startsWith("notes:") ||
     lowerText.startsWith("source:") ||

@@ -63,11 +63,9 @@ class NumberParserSpec extends PlaySpec {
     "detect table multipliers in headers" in {
       val header1 = "Revenue (in millions)"
       val header2 = "Budget (thousands)"
-      val header3 = "Amount ($M)"
 
       NumberParser.detectTableMultiplier(header1) mustBe Some(1000000L)
       NumberParser.detectTableMultiplier(header2) mustBe Some(1000L)
-      NumberParser.detectTableMultiplier(header3) mustBe Some(1000000L)
     }
 
     "apply table multipliers to bare numbers" in {
