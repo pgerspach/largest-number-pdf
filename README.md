@@ -104,7 +104,8 @@ sbt compile
 ```
 app/
 ├── controllers/HomeController.scala    # HTTP request handling
-├── services/PdfService.scala          # PDF processing logic
-├── pdf_files/                         # PDF storage directory
-└── views/                             # HTML templates
+├── services/PdfService.scala           # PDF processing logic
+├── services/NumberParser.scala         # Number parsing from text logic
+├── pdf_files/                          # PDF storage directory
+└── views/                              # HTML templates
 ```
