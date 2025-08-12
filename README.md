@@ -47,10 +47,20 @@ http://localhost:9000/largest_number?file=document.pdf
 
 ### Response Format
 
-- **Success**: `"The largest number found in the PDF is: 2500000"`
-- **No file**: `"File name is required."`
-- **No numbers found**: `"No numbers found in the PDF."`
-- **Error**: `"Failed to read PDF file."`
+The API returns JSON responses:
+
+**Success (200 OK)**:
+```json
+{
+  "fileName": "document.pdf",
+  "largestNumber": 2500000
+}
+```
+
+**Error Responses**:
+- **No file (400 Bad Request)**: `"File name is required."`
+- **No numbers found (404 Not Found)**: `"No numbers found in the PDF."`
+- **Error (500 Internal Server Error)**: `"Failed to read PDF file."`
 
 ## Adding PDF Files
 
