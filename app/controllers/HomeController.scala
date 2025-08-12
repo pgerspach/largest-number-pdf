@@ -1,7 +1,10 @@
 package controllers
 
+import model.LargestNumberResult
+
 import javax.inject._
 import play.api._
+import play.api.libs.json.Json
 import play.api.mvc._
 import services.PdfService
 
@@ -38,7 +41,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents, p
       number => if (number.isEmpty) {
         NotFound("No numbers found in the PDF.")
       } else {
-        Ok(s"The largest number found in the PDF is: ${number.get}")
+        val result = LargestNumberResult(fileName.get, number)
+        val resultJson = Json.toJson(result)
+        Ok(resultJson)
       }
     )
   }
