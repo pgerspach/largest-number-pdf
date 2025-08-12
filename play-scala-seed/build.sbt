@@ -1,5 +1,5 @@
-name := """play-scala-seed"""
-organization := "conductor-largest-number"
+name := """largest-number-pdf"""
+organization := "patgerspach"
 
 version := "1.0-SNAPSHOT"
 
@@ -12,7 +12,7 @@ libraryDependencies += "org.apache.pdfbox" % "pdfbox" % "3.0.5"
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.2" % Test
 
 // Adds additional packages into Twirl
-//TwirlKeys.templateImports += "conductor-largest-number.controllers._"
+//TwirlKeys.templateImports += "patgerspach.controllers._"
 
 // Adds additional packages into conf/routes
-// play.sbt.routes.RoutesKeys.routesImport += "conductor-largest-number.binders._"
+// play.sbt.routes.RoutesKeys.routesImport += "patgerspach.binders._"
